@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Leaf & Legacy · Pure Tea from Panchagarh</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --dark:    #060e07;
+  --deep:    #0b1a0c;
+  --forest:  #112914;
+  --mid:     #1e4a22;
+  --leaf:    #3a8c3f;
+  --bright:  #6abf5e;
+  --glow:    #ffe87a;
+  --cream:   #f0e6c8;
+  --muted:   rgba(180,230,150,0.45);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--dark);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--cream);
+}
+
+/* ── FULL SCENE ── */
+#scene {
+  width: 100vw; height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 80px;
+  position: relative;
+  overflow: hidden;
+  background: var(--dark);
+  transition: background 1.2s ease;
+}
+#scene.on { background: #0a1a0b; }
+
+/* subtle noise texture overlay */
+#scene::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; opacity: 0.6; z-index: 0;
+}
+
+/* ── GROUND RADIAL ── */
+.ground {
+  position: absolute;
+  bottom: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 900px; height: 320px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(40,120,40,0.28) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  pointer-events: none; z-index: 1;
+}
+#scene.on .ground { opacity: 1; }
+
+/* ── TOP AMBIENT ── */
+.top-glow {
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 260px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(100,200,80,0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 1.4s ease;
+  pointer-events: none; z-index: 1;
+}
+#scene.on .top-glow { opacity: 1; }
+
+/* ── BRAND ── */
+.brand {
+  position: absolute;
+  top: 38px; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+.brand-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: rgba(200,240,160,0.08);
+  transition: color 1.2s ease, text-shadow 1.2s ease;
+  white-space: nowrap;
+}
+.brand-name .leaf-l { opacity: 0.08; transition: opacity 1.2s ease; font-style: italic; }
+#scene.on .brand-name .leaf-l { opacity: 1; }
+#scene.on .brand-name {
+  color: #c8f0a0;
+  text-shadow:
+    0 0 20px rgba(100,200,60,0.9),
+    0 0 60px rgba(80,160,40,0.5),
+    0 0 100px rgba(60,120,30,0.3);
+}
+.brand-tagline {
+  margin-top: 6px;
+  font-size: clamp(9px, 1.2vw, 12px);
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: rgba(180,240,120,0.06);
+  transition: color 1.3s ease;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+}
+#scene.on .brand-tagline { color: rgba(180,240,120,0.6); }
+
+.brand-divider {
+  margin: 8px auto 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(100,200,80,0.6), transparent);
+  transition: width 1.5s ease 0.3s;
+}
+#scene.on .brand-divider { width: 200px; }
+
+/* ── LEAVES FALLING ── */
+.leaves-layer {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 2;
+  overflow: hidden;
+}
+.leaf-p {
+  position: absolute;
+  top: -40px;
+  opacity: 0;
+  font-size: 18px;
+  animation: lfFall linear forwards, lfSway ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes lfFall {
+  0%   { transform: translateY(0) rotate(0deg) scale(0.5); opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 0.8; }
+  100% { transform: translateY(105vh) rotate(380deg) scale(1.1); opacity: 0; }
+}
+@keyframes lfSway {
+  0%,100% { margin-left: 0px; }
+  30%     { margin-left: 22px; }
+  70%     { margin-left: -18px; }
+}
+
+/* ── GRASS / BOTTOM DECOR ── */
+.grass-row {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 80px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding: 0 20px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.5s ease 0.4s;
+}
+#scene.on .grass-row { opacity: 1; }
+.grass-blade {
+  width: 3px;
+  background: linear-gradient(180deg, var(--bright) 0%, var(--mid) 100%);
+  border-radius: 3px 3px 0 0;
+  transform-origin: bottom center;
+  animation: grassWave ease-in-out infinite alternate;
+}
+@keyframes grassWave {
+  from { transform: rotate(-8deg) scaleY(0.92); }
+  to   { transform: rotate(8deg)  scaleY(1.0); }
+}
+
+/* ── CONTENT ROW ── */
+.content-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(30px, 6vw, 90px);
+  z-index: 10;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+/* ── LAMP ── */
+.lamp-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 20px;
+}
+
+.lamp-head {
+  width: clamp(80px, 10vw, 110px);
+  height: clamp(60px, 8vw, 80px);
+  background: linear-gradient(160deg, #3a6b3e 0%, #1d4421 100%);
+  border-radius: 50% 50% 14px 14px / 38% 38% 14px 14px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  transition: box-shadow 0.9s ease, background 0.9s ease;
+  overflow: hidden;
+}
+
+/* inner glow — bulb inside */
+.lamp-inner {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 70%,
+    rgba(255,240,100,0) 0%, rgba(255,210,50,0) 60%);
+  transition: background 0.9s ease;
+}
+#scene.on .lamp-inner {
+  background: radial-gradient(ellipse at 50% 70%,
+    rgba(255,248,140,1) 0%,
+    rgba(255,220,70,0.8) 30%,
+    rgba(255,180,30,0.3) 65%,
+    transparent 85%);
+}
+#scene.on .lamp-head {
+  background: linear-gradient(160deg, #5a9b5e 0%, #2a5e30 100%);
+  box-shadow:
+    0 0 30px 10px rgba(255,220,70,0.6),
+    0 0 80px 30px rgba(255,180,30,0.25),
+    inset 0 0 30px rgba(255,230,100,0.35);
+}
+
+/* light cone from opening */
+.lamp-cone {
+  position: absolute;
+  bottom: -65px; left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  border-left: 45px solid transparent;
+  border-right: 45px solid transparent;
+  border-top: 70px solid rgba(255,230,80,0);
+  transition: border-top-color 0.9s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+#scene.on .lamp-cone { border-top-color: rgba(255,230,80,0.12); }
+
+/* opening slit at bottom of lamphead */
+.lamp-opening {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 44px; height: 12px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 0 0 10px 10px;
+  transition: background 0.9s, box-shadow 0.9s;
+  overflow: hidden;
+}
+#scene.on .lamp-opening {
+  background: rgba(255,240,110,0.95);
+  box-shadow:
+    0 10px 28px 12px rgba(255,225,80,0.75),
+    0 20px 60px 20px rgba(255,180,40,0.4);
+}
+
+/* face — top of head */
+.lamp-face {
+  position: absolute;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  z-index: 4;
+}
+.lamp-eyes { display: flex; gap: clamp(12px,1.5vw,18px); }
+.eye {
+  width: 9px; height: 9px;
+  background: #0a1a0c;
+  border-radius: 50%;
+  transition: height 0.4s, border-radius 0.4s, transform 0.4s;
+}
+#scene.on .eye {
+  height: 3px; border-radius: 2px;
+  transform: translateY(2px);
+}
+.lamp-mouth {
+  width: 18px; height: 8px;
+  border-bottom: 2.5px solid #0a1a0c;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  border-radius: 0 0 10px 10px;
+  transition: width 0.3s, height 0.3s;
+}
+#scene.on .lamp-mouth { width: 26px; height: 13px; }
+
+.lamp-neck {
+  width: 12px;
+  height: clamp(60px, 8vw, 85px);
+  background: linear-gradient(180deg, #4a4a4a, #666);
+  border-radius: 6px;
+  margin-top: 5px;
+}
+.lamp-base {
+  width: clamp(70px, 9vw, 95px);
+  height: 22px;
+  background: linear-gradient(180deg, #5a5a5a, #3a3a3a);
+  border-radius: 35px 35px 12px 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+}
+
+/* ── CORD ── */
+#cordSvg {
+  position: absolute;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+#knobHit {
+  position: absolute;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: grab;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+  touch-action: none;
+}
+#knobHit:active { cursor: grabbing; }
+
+/* ── CARD ── */
+.card {
+  background: rgba(6,18,7,0.75);
+  border: 1px solid rgba(80,160,60,0.18);
+  border-radius: 20px;
+  padding: clamp(24px, 3vw, 40px) clamp(22px, 2.5vw, 36px);
+  width: clamp(260px, 30vw, 320px);
+  min-height: 480px;
+  backdrop-filter: blur(14px);
+  opacity: 0;
+  transform: scale(0.86) translateY(18px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events: none;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(80,180,60,0.08), transparent 70%);
+  pointer-events: none;
+}
+#scene.on .card {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: all;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 700;
+  color: #d4f0a8;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.card-sub {
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(140,200,100,0.45);
+  text-align: center;
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+.field-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(150,210,110,0.5);
+  margin-bottom: 6px;
+  font-weight: 400;
+}
+.field-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(80,160,60,0.22);
+  border-radius: 10px;
+  color: #c8f0a0;
+  font-size: 14px;
+  font-family: 'Cormorant Garamond', serif;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.field-input:focus {
+  border-color: rgba(100,190,70,0.6);
+  box-shadow: 0 0 0 3px rgba(80,160,50,0.12);
+}
+.field-input::placeholder { color: rgba(140,200,100,0.2); }
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #256b28 0%, #3fa83a 100%);
+  border: none;
+  border-radius: 10px;
+  color: #e8f8d8;
+  font-size: 15px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.2s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.submit-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  border-radius: inherit;
+}
+.submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+.submit-btn:active { transform: translateY(0); }
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  gap: 10px;
+}
+.card-forgot {
+  font-size: 12px;
+  color: rgba(140,200,100,0.28);
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.card-forgot:hover { color: rgba(140,200,100,0.6); }
+
+.card-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(100,180,70,0.2);
+  flex-shrink: 0;
+}
+
+.signup-btn {
+  font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: #7dda58;
+  background: rgba(60,160,50,0.1);
+  border: 1px solid rgba(80,180,60,0.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.signup-btn:hover {
+  background: rgba(60,160,50,0.22);
+  border-color: rgba(100,200,70,0.55);
+  color: #a0f07a;
+  transform: translateY(-1px);
+}
+.signup-btn:active { transform: translateY(0); }
+
+/* ── SIGNUP PANEL (slides in over the login card) ── */
+.signup-panel {
+  position: absolute;
+  inset: 0;
+  background: rgba(6,18,7,0.97);
+  border-radius: 20px;
+  padding: clamp(24px,3vw,40px) clamp(22px,2.5vw,36px) clamp(28px,3vw,44px);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+  z-index: 5;
+  overflow-y: auto;
+}
+.signup-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+.signup-panel .card-title { margin-bottom: 4px; }
+.signup-panel .card-sub   { margin-bottom: 18px; }
+.back-btn {
+  font-size: 12px;
+  color: rgba(140,200,100,0.35);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 1px;
+  margin-top: 14px;
+  text-align: center;
+  transition: color 0.2s;
+  width: 100%;
+}
+.back-btn:hover { color: rgba(140,200,100,0.7); }
+
+/* ── HINT ── */
+.hint {
+  position: absolute;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+  white-space: nowrap;
+  transition: opacity 0.6s;
+  z-index: 10;
+  pointer-events: none;
+}
+#scene.on .hint { opacity: 0; }
+
+/* ── BOTTOM TAGLINE ── */
+.bottom-tag {
+  position: absolute;
+  bottom: 22px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(140,200,100,0);
+  transition: color 1.6s ease 0.5s;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  font-weight: 300;
+}
+#scene.on .bottom-tag { color: rgba(140,200,100,0.35); }
+</style>
+</head>
+<body>
+<div id="scene">
+
+  <!-- glows -->
+  <div class="ground"></div>
+  <div class="top-glow"></div>
+
+  <!-- brand -->
+  <div class="brand">
+    <div class="brand-name">
+      <span class="leaf-l">🌿</span> Leaf &amp; Legacy <span class="leaf-l">🍃</span>
+    </div>
+    <div class="brand-tagline">Pure Tea · Panchagarh, Bangladesh</div>
+    <div class="brand-divider"></div>
+  </div>
+
+  <!-- falling leaves -->
+  <div class="leaves-layer" id="leavesLayer"></div>
+
+  <!-- grass blades -->
+  <div class="grass-row" id="grassRow"></div>
+
+  <!-- main content -->
+  <div class="content-row">
+
+    <!-- LAMP -->
+    <div class="lamp-wrap" id="lampWrap" style="position:relative;">
+      <div class="lamp-head" id="lampHead">
+        <div class="lamp-inner"></div>
+        <div class="lamp-face">
+          <div class="lamp-eyes">
+            <div class="eye"></div>
+            <div class="eye"></div>
+          </div>
+          <div class="lamp-mouth"></div>
+        </div>
+        <div class="lamp-opening"></div>
+      </div>
+      <div class="lamp-cone"></div>
+      <div class="lamp-neck"></div>
+      <div class="lamp-base"></div>
+
+      <!-- cord -->
+      <svg id="cordSvg" width="70" height="160"
+           style="position:absolute;left:50%;top:0;transform:translateX(-50%);overflow:visible;pointer-events:none;">
+        <defs>
+          <filter id="cordBlur">
+            <feGaussianBlur stdDeviation="0.4"/>
+          </filter>
+        </defs>
+        <path id="cordPath" fill="none" stroke="#4a6b4e" stroke-width="2.4"
+              stroke-linecap="round" filter="url(#cordBlur)"/>
+        <circle id="cordBall" r="7.5" fill="#3a5a3e"/>
+        <circle id="cordShine" r="3" fill="rgba(255,255,255,0.15)" cx="0" cy="0"/>
+      </svg>
+      <div id="knobHit" style="position:absolute;left:50%;top:0;"></div>
+    </div>
+
+    <!-- LOGIN CARD -->
+    <div class="card" id="card">
+
+      <!-- LOGIN FORM -->
+      <div id="loginPanel">
+        <div class="card-title">Welcome Back</div>
+        <div class="card-sub">Leaf &amp; Legacy</div>
+        <label class="field-label">Email</label>
+        <input class="field-input" type="email" placeholder="your@email.com" id="emailInput"/>
+        <label class="field-label">Password</label>
+        <input class="field-input" type="password" placeholder="••••••••"/>
+        <button class="submit-btn" id="submitBtn">Enter the Garden 🌿</button>
+        <div class="card-footer">
+          <div class="card-forgot">Forgot Password?</div>
+          <div class="card-divider"></div>
+          <button class="signup-btn" id="openSignup">New here? Sign Up</button>
+        </div>
+      </div>
+
+      <!-- SIGNUP PANEL -->
+      <div class="signup-panel" id="signupPanel">
+        <div class="card-title">Join the Garden</div>
+        <div class="card-sub">Leaf &amp; Legacy</div>
+        <label class="field-label">Full Name</label>
+        <input class="field-input" type="text" placeholder="Your name" id="signupName"/>
+        <label class="field-label">Email</label>
+        <input class="field-input" type="email" placeholder="your@email.com" id="signupEmail"/>
+        <label class="field-label">Password</label>
+        <input class="field-input" type="password" placeholder="Create a password"/>
+        <button class="submit-btn" id="signupBtn">Start Your Journey 🌱</button>
+        <button class="back-btn" id="backToLogin">← Back to Login</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="hint">↓ Pull the cord to illuminate</div>
+  <div class="bottom-tag">From the highlands of Panchagarh · Est. 2024</div>
+</div>
+
+<script>
+// ── GRASS ──
+const grassRow = document.getElementById('grassRow');
+for (let i = 0; i < 60; i++) {
+  const b = document.createElement('div');
+  b.className = 'grass-blade';
+  const h = 20 + Math.random() * 55;
+  const delay = Math.random() * 2.5;
+  const dur   = 1.8 + Math.random() * 1.8;
+  b.style.cssText = `height:${h}px;animation-duration:${dur}s;animation-delay:${delay}s;opacity:${0.4+Math.random()*0.6}`;
+  grassRow.appendChild(b);
+}
+
+// ── LEAVES ──
+const leavesLayer = document.getElementById('leavesLayer');
+const leafEmojis  = ['🍃','🌿','🍂','🌱','🍀','🌾'];
+let   leafTimer   = null;
+
+function spawnLeaf() {
+  const el  = document.createElement('div');
+  el.className = 'leaf-p';
+  const x   = Math.random() * 96;
+  const dur = 4 + Math.random() * 4;
+  const sw  = 1.2 + Math.random() * 1.5;
+  const sz  = 13 + Math.random() * 14;
+  el.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+  el.style.cssText = `left:${x}%;font-size:${sz}px;
+    animation-name:lfFall,lfSway;
+    animation-duration:${dur}s,${sw}s;
+    animation-timing-function:linear,ease-in-out;
+    animation-fill-mode:forwards,none;
+    animation-iteration-count:1,infinite;`;
+  leavesLayer.appendChild(el);
+  setTimeout(() => el.remove(), (dur + 0.5) * 1000);
+}
+
+// ── CORD PHYSICS ──
+const scene    = document.getElementById('scene');
+const cordPath = document.getElementById('cordPath');
+const cordBall = document.getElementById('cordBall');
+const cordShine= document.getElementById('cordShine');
+const knobHit  = document.getElementById('knobHit');
+const lampHead = document.getElementById('lampHead');
+
+// anchor at bottom-center of lampHead (in lampWrap local coords)
+let AX, AY;
+function recalcAnchor() {
+  const hw = lampHead.offsetWidth;
+  const hh = lampHead.offsetHeight;
+  AX = hw / 2;
+  AY = hh;
+}
+
+const REST_OFFSET = 110; // how far below anchor the knob rests
+let REST_X, REST_Y;
+let kx, ky;
+let vx = 0, vy = 0;
+const SPRING = 0.15, DAMP = 0.68;
+let rafId = null;
+let isOn = false;
+
+function init() {
+  recalcAnchor();
+  REST_X = AX; REST_Y = AY + REST_OFFSET;
+  kx = REST_X; ky = REST_Y;
+  draw();
+}
+
+function draw() {
+  const mx = (AX + kx) / 2 + (kx - AX) * 0.08;
+  const my = (AY + ky) / 2 + 8;
+  cordPath.setAttribute('d', `M${AX} ${AY} Q${mx} ${my} ${kx} ${ky}`);
+  cordBall.setAttribute('cx', kx);
+  cordBall.setAttribute('cy', ky);
+  cordShine.setAttribute('cx', kx - 2);
+  cordShine.setAttribute('cy', ky - 2);
+  knobHit.style.left = kx + 'px';
+  knobHit.style.top  = ky + 'px';
+}
+
+function springStep() {
+  const dx = kx - REST_X, dy = ky - REST_Y;
+  vx = (vx - SPRING * dx) * DAMP;
+  vy = (vy - SPRING * dy) * DAMP;
+  kx += vx; ky += vy;
+  draw();
+  if (Math.abs(dx)<0.25 && Math.abs(dy)<0.25 && Math.abs(vx)<0.08 && Math.abs(vy)<0.08) {
+    kx = REST_X; ky = REST_Y; draw(); return;
+  }
+  rafId = requestAnimationFrame(springStep);
+}
+
+function launch(pullDist) {
+  if (rafId) cancelAnimationFrame(rafId);
+  vx = (Math.random() - 0.5) * 4;
+  vy = -Math.min(pullDist, 140) * 0.58;
+  kx = REST_X + (Math.random() - 0.5) * 6;
+  ky = REST_Y + pullDist;
+  rafId = requestAnimationFrame(springStep);
+}
+
+function toggle() {
+  isOn = !isOn;
+  scene.classList.toggle('on', isOn);
+  if (isOn) {
+    spawnLeaf(); spawnLeaf(); spawnLeaf();
+    leafTimer = setInterval(spawnLeaf, 350);
+  } else {
+    clearInterval(leafTimer);
+  }
+}
+
+// drag
+let dragging = false, dragY0 = 0, ky0 = 0;
+const getY = e => e.touches ? e.touches[0].clientY : e.clientY;
+
+knobHit.addEventListener('pointerdown', e => {
+  dragging = true; dragY0 = getY(e); ky0 = ky;
+  if (rafId) cancelAnimationFrame(rafId);
+  knobHit.setPointerCapture(e.pointerId);
+  e.stopPropagation();
+});
+
+knobHit.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const delta = getY(e) - dragY0;
+  ky = Math.max(REST_Y, ky0 + delta);
+  kx = REST_X;
+  draw();
+});
+
+knobHit.addEventListener('pointerup', e => {
+  if (!dragging) return;
+  dragging = false;
+  const pulled = ky - REST_Y;
+  if (pulled > 30) { toggle(); launch(pulled); }
+  else { vx = 0; vy = -pulled * 0.28; rafId = requestAnimationFrame(springStep); }
+});
+
+// login submit
+document.getElementById('submitBtn').addEventListener('click', () => {
+  const u = document.getElementById('emailInput').value.trim();
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = u ? `Welcome, ${u.split('@')[0]}! 🌿` : 'Welcome to the Garden! 🌿';
+  setTimeout(() => btn.textContent = 'Enter the Garden 🌿', 2800);
+});
+
+// signup toggle
+document.getElementById('openSignup').addEventListener('click', () => {
+  document.getElementById('signupPanel').classList.add('visible');
+});
+document.getElementById('backToLogin').addEventListener('click', () => {
+  document.getElementById('signupPanel').classList.remove('visible');
+});
+
+// signup submit
+document.getElementById('signupBtn').addEventListener('click', () => {
+  const name = document.getElementById('signupName').value.trim();
+  const btn  = document.getElementById('signupBtn');
+  btn.textContent = name ? `Welcome aboard, ${name}! 🌱` : 'Welcome to the Family! 🌱';
+  setTimeout(() => {
+    btn.textContent = 'Start Your Journey 🌱';
+    document.getElementById('signupPanel').classList.remove('visible');
+  }, 2500);
+});
+
+window.addEventListener('resize', init);
+init();
+</script>
+</body>
+</html>
